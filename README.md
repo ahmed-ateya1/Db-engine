@@ -1,4 +1,4 @@
-# ITI-SQL Database Engine
+# SQL Database Engine
 
 A lightweight, file-based relational database management system (DBMS) written in C++ with a modern WPF GUI interface. This project demonstrates fundamental database concepts including SQL parsing, query execution, and data persistence using CSV file storage.
 
