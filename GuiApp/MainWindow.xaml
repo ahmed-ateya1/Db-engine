@@ -1,0 +1,318 @@
+﻿<Window x:Class="GuiApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ITI-SQL Database Engine" 
+        Height="700" Width="1000"
+        MinHeight="500" MinWidth="800"
+        Background="#1E1E1E"
+        Closing="Window_Closing"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <!-- Modern Button Style -->
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="3" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1C97EA"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#3F3F46"/>
+                    <Setter Property="Foreground" Value="#6E6E6E"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Danger Button Style (Stop) -->
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#C42B1C"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E81123"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Success Button Style (Start/Send) -->
+        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#0E7A0D"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#107C10"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Secondary Button Style -->
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#3F3F46"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#4D4D57"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <!-- Top Toolbar -->
+        <Border DockPanel.Dock="Top" 
+                Background="#2D2D30" 
+                Padding="12,8"
+                BorderBrush="#3F3F46" 
+                BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Engine Controls -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button Name="StartButton" 
+                            Content="▶ Start Engine" 
+                            Width="120" 
+                            Height="32"
+                            Style="{StaticResource SuccessButton}"
+                            Click="StartButton_Click"
+                            ToolTip="Start the database engine (F5)"/>
+
+                    <Button Name="StopButton" 
+                            Content="⏹ Stop Engine" 
+                            Width="120" 
+                            Height="32"
+                            Margin="8,0,0,0"
+                            Style="{StaticResource DangerButton}"
+                            Click="StopButton_Click" 
+                            IsEnabled="False"
+                            ToolTip="Stop the running engine (Shift+F5)"/>
+
+                    <Separator Margin="16,0" Width="1" Background="#3F3F46"/>
+
+                    <CheckBox Name="AutoStartCheck" 
+                              Content="Auto-start Engine" 
+                              VerticalAlignment="Center"
+                              Foreground="#E0E0E0"
+                              FontFamily="Segoe UI"
+                              FontSize="13"/>
+                </StackPanel>
+
+                <!-- Status Indicator -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Ellipse Name="StatusIndicator" 
+                             Width="12" 
+                             Height="12" 
+                             Fill="#6E6E6E"
+                             VerticalAlignment="Center"
+                             Margin="0,0,8,0"/>
+
+                    <TextBlock Name="StatusBlock" 
+                               Text="Engine Stopped" 
+                               Foreground="#E0E0E0"
+                               FontFamily="Segoe UI"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Bottom StatusBar -->
+        <StatusBar DockPanel.Dock="Bottom" 
+                   Background="#007ACC" 
+                   Height="26">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+
+            <StatusBarItem Grid.Column="0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="📁 Engine Path:" 
+                               Foreground="White" 
+                               FontFamily="Segoe UI"
+                               FontSize="11"
+                               Margin="0,0,6,0"/>
+                    <TextBlock Name="StatusPathBlock" 
+                               Text="Not configured" 
+                               Foreground="White" 
+                               FontFamily="Segoe UI"
+                               FontSize="11"
+                               FontWeight="Bold"/>
+                </StackPanel>
+            </StatusBarItem>
+
+            <StatusBarItem Grid.Column="2">
+                <TextBlock Text="Ready" 
+                           Foreground="White" 
+                           FontFamily="Segoe UI"
+                           FontSize="11"/>
+            </StatusBarItem>
+        </StatusBar>
+
+        <!-- Main Content Area -->
+        <DockPanel Margin="0">
+            <!-- Output Console Section -->
+            <Border DockPanel.Dock="Top" 
+                    Background="#1E1E1E" 
+                    Padding="0"
+                    BorderBrush="#3F3F46"
+                    BorderThickness="0,0,0,1">
+                <DockPanel>
+                    <!-- Output Header -->
+                    <Border DockPanel.Dock="Top" 
+                            Background="#252526" 
+                            Padding="12,6"
+                            BorderBrush="#3F3F46"
+                            BorderThickness="0,0,0,1">
+                        <Grid>
+                            <TextBlock Text="📊 ENGINE OUTPUT" 
+                                       Foreground="#E0E0E0" 
+                                       FontFamily="Segoe UI"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+
+                            <Button Content="💾 Save Output" 
+                                    HorizontalAlignment="Right"
+                                    Width="110"
+                                    Height="24"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Click="SaveOutputButton_Click"
+                                    ToolTip="Save console output to file (Ctrl+S)"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Console Output -->
+                    <TextBox Name="OutputBox" 
+                             IsReadOnly="True" 
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Auto"
+                             AcceptsReturn="True"
+                             FontFamily="Cascadia Code,Consolas,Courier New"
+                             FontSize="13"
+                             Background="#1E1E1E"
+                             Foreground="#CCCCCC"
+                             BorderThickness="0"
+                             Padding="12"
+                             Height="300"
+                             SelectionBrush="#264F78"/>
+                </DockPanel>
+            </Border>
+
+            <!-- Resizable Splitter -->
+            <GridSplitter DockPanel.Dock="Top"
+                          Height="5"
+                          HorizontalAlignment="Stretch"
+                          Background="#3F3F46"
+                          ShowsPreview="True"
+                          Cursor="SizeNS"/>
+
+            <!-- Input Section -->
+            <Border Background="#1E1E1E" 
+                    Padding="0">
+                <DockPanel>
+                    <!-- Input Header -->
+                    <Border DockPanel.Dock="Top" 
+                            Background="#252526" 
+                            Padding="12,6"
+                            BorderBrush="#3F3F46"
+                            BorderThickness="0,0,0,1">
+                        <Grid>
+                            <TextBlock Text="⚡ SQL COMMAND INPUT" 
+                                       Foreground="#E0E0E0" 
+                                       FontFamily="Segoe UI"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+
+                            <TextBlock Text="Press Ctrl+Enter to execute • Use ↑↓ for history" 
+                                       HorizontalAlignment="Right"
+                                       Foreground="#808080" 
+                                       FontFamily="Segoe UI"
+                                       FontSize="10"
+                                       FontStyle="Italic"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Action Buttons -->
+                    <Border DockPanel.Dock="Bottom" 
+                            Background="#252526" 
+                            Padding="12,8"
+                            BorderBrush="#3F3F46"
+                            BorderThickness="0,1,0,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Name="ClearInputButton" 
+                                    Content="🗑 Clear Input" 
+                                    Width="110"
+                                    Height="32"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Click="ClearInputButton_Click"
+                                    ToolTip="Clear input box (Ctrl+L)"/>
+
+                            <Button Name="ClearButton" 
+                                    Content="Clear Output" 
+                                    Width="110"
+                                    Height="32"
+                                    Margin="8,0,0,0"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Click="ClearButton_Click"
+                                    ToolTip="Clear console output"/>
+
+                            <Button Name="SendButton" 
+                                    Content="▶ Execute" 
+                                    Width="120"
+                                    Height="32"
+                                    Margin="8,0,0,0"
+                                    Style="{StaticResource SuccessButton}"
+                                    Click="SendButton_Click" 
+                                    IsEnabled="False"
+                                    ToolTip="Send command to engine (Ctrl+Enter)"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SQL Input TextBox -->
+                    <TextBox Name="InputBox" 
+                             AcceptsReturn="True" 
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             FontFamily="Cascadia Code,Consolas,Courier New"
+                             FontSize="14"
+                             Background="#1E1E1E"
+                             Foreground="#D4D4D4"
+                             BorderThickness="0"
+                             Padding="12"
+                             SelectionBrush="#264F78"
+                             KeyDown="InputBox_KeyDown"/>
+                </DockPanel>
+            </Border>
+        </DockPanel>
+    </DockPanel>
+</Window>
